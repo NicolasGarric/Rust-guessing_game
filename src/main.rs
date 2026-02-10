@@ -4,6 +4,7 @@ use std::io; // bring the io input/output library into scope.
 
 
 use rand::Rng; // Phase 2 code adding rand library linked to dependency files
+use std::cmp::Ordering; // Phase 2 code to compare random number with elements
 
 fn main() {
     // CODE PHASE 1
@@ -62,15 +63,69 @@ fn main() {
 
     let secret_number = rand::thread_rng().gen_range(1..=100);
 
-    println!("The secret number is: {secret_number}");
+    // rand::thread_rng --> function triggering random number
+    // gen_range method --> linked to the thread_rng() random generator
+        // taking start..=end range typo for range
+        // 1..=100 to request a number between 1 and 100
 
-    println!("Please input your guess.");
+    // IMPORTANT : cargo doc --open --> opens dependentie's documentation
 
-    let mut guess = String::new();
+    // Debug to show the secret number
+    // println!("The secret number is: {secret_number}");
 
-    io::stdin()
-        .read_line(&mut guess)
-        .expect("Failed to read line");
+    loop {
+        // Adding loop
 
-    println!("You guessed: {guess}");
+        println!("Please input your guess.");
+
+        let mut guess = String::new();
+
+        io::stdin()
+            .read_line(&mut guess)
+            .expect("Failed to read line");
+
+        let guess: u32 = match guess.trim().parse() {
+            Ok(num) => num,
+            Err(_) => continue,
+        };
+
+        // First guess variable shadowed by the second
+        // guess.trim().parse()
+            // guess is the older guess variable before shadowing (String)
+            // .trim() eliminates whitespace at the begining and the end (must do)
+            // parse method on strings converts a string to another type
+
+        // let guess: u32
+            // : annotates the variable type
+            // u32 = 32-bit integer
+
+        // moving from expect to match expression to not crash but deal with error
+            // parse return a Result type witch is an enum with Ok and Err
+
+        // If parse correctly works it will return a number --> num
+            // guess: u32 = match
+            // Ok(num) => num, --> num will be return and guess will take the value
+
+        // If parse doesn't work --> don't find num
+            // Err(_) the "_" catch all the value
+
+        println!("You guessed: {guess}");
+
+        // Adding elements to comapre guess var and secret number random integer
+        match guess.cmp(&secret_number) {
+            Ordering::Less => println!("Too small!"),
+            Ordering::Greater => println!("Too big!"),
+            Ordering::Equal => {
+                println!("You win!");
+                break;
+                // break --> exit the loop when the player win
+            }
+
+            // Ordering have three variants: Less / Equal / Greater
+            // cmp method comapre two values
+                // guess is compared (cmp) to &secret_number
+            // match method is used: match guess.cmp(&secret_number)
+                // match use arms = pattern to match against
+        }
+    }
 }
